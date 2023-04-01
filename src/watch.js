@@ -1,4 +1,5 @@
 import { Worker } from 'worker_threads';
+// import { getLiveData } from './ingest.js';
 
 const runService = (id) => {
   return new Promise((resolve, reject) => {
@@ -12,9 +13,12 @@ const runService = (id) => {
 };
 let num = 0;
 setInterval(() => {
-  fetch('https://statsapi.web.nhl.com/api/v1/schedule')
-    .then((response) => response.json())
-    .then((body) => {
+  fetch('https://statsapi.web.nhl.com/api/v1/schedule').then((response) =>
+    response.json().then((body) => {
+      console.dir('a');
       runService('2021021204').catch((error) => {});
     })
+  );
 }, 5000);
+
+// getLiveData('2021021204');
