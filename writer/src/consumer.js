@@ -31,13 +31,13 @@ import pg from 'pg';
   kafkaConsumer.on('message', async function (message) {
     const jsonString = message.value.toString();
     const jsonObject = JSON.parse(jsonString);
-
     if (jsonObject['teams']) {
-      console.dir(jsonObject['teams'])
+      // console.dir(jsonObject['teams'])
       for (const team of jsonObject['teams']) {
+        console.dir(team)
         const insert = 'INSERT INTO teams(id, name) VALUES($1, $2)';
         const update = 'ON CONFLICT (id) DO UPDATE SET name = excluded.name;';
-        await client.query({
+         await client.query({
           text: insert + update,
           values: [team.id, team.name]
         });
@@ -71,7 +71,6 @@ import pg from 'pg';
 
     if (jsonObject['stats']) {
       for (const stat of jsonObject['stats']) {
-        console.dir(stat);
         const time = new Date().toISOString();
 
         const insert ='INSERT INTO stats(game_id, player_id, assists, goals, hits, points, penalty_minutes, update_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8)'
