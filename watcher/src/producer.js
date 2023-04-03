@@ -1,10 +1,6 @@
 import kafka from 'kafka-node';
 
-const client = new kafka.Client('http://localhost:2181', 'my-client-id', {
-  sessionTimeout: 300,
-  spinDelay: 100,
-  retries: 2
-});
+const client = new kafka.KafkaClient('http://localhost:2181', 'producer-client');
 
 const producer = new kafka.HighLevelProducer(client);
 producer.on('ready', function () {
@@ -20,10 +16,9 @@ const KafkaService = {
   sendRecord: (payload, callback = () => {}) => {
     const buffer = new Buffer.from(JSON.stringify(payload));
 
-    // Create a new payload
     const record = [
       {
-        topic: 'pipeline.dev',
+        topic: 'pipeline',
         messages: buffer,
         attributes: 1 /* Use GZip compression for the payload */
       }

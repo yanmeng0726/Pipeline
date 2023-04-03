@@ -1,0 +1,22 @@
+{
+  "name": "watcher",
+  "version": "1.0.0",
+  "description": "watch game is live or not",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test",
+    "prettier": "prettier --config .prettierrc 'src/**/*' --write",
+    "start": "node src/consumer.js"
+  },
+  "author": "Mandy Yan",
+  "license": "ISC",
+  "dependencies": {
+    "kafka-node": "^5.0.0",
+    "lodash": "^4.17.21",
+    "node-fetch": "^3.3.1",
+    "pg": "^8.10.0",
+    "prettier": "^2.8.7",
+    "worker-thread": "^1.1.0"
+  },
+  "type": "module"
+}
