@@ -13,34 +13,11 @@ const runService = (id) => {
   });
 };
 
-// seed data for teams
-fetch('https://statsapi.web.nhl.com/api/v1/teams')
-  .then((response) => {
-    if (response.ok) {
-      return response.json();
-    }
-    return Promise.reject(response);
-  })
-  .then((body) => {
-    const teams = [];
-    for (const team of body.teams) {
-      const teamObj = { id: team.id, name: team.name };
-      teams.push(teamObj);
-    }
-    KafkaService.sendRecord({ teams: teams });
-
-    console.log("seeding team data ...")
-  })
-  .catch((response) => {
-    console.error(response);
-  });
-
-
 
 
 
 // seed player basic info for schedule team 
-fetch('https://statsapi.web.nhl.com/api/v1/schedule')
+fetch('https://statsapi.web.nhl.com/api/v1/schedule?date=2023-04-03')
   .then((response) => {
     if (response.ok) {
       return response.json();
@@ -59,8 +36,9 @@ fetch('https://statsapi.web.nhl.com/api/v1/schedule')
     return liveLinks
   })
   .then(
-    async function(liveLinks){
+    async (liveLinks)=>{
       const playerObjs =[]
+      console.dir(liveLinks)
       for (let liveLink of liveLinks) {
         let response = await fetch('https://statsapi.web.nhl.com'+liveLink);
         let body = await response.json();
@@ -78,6 +56,7 @@ fetch('https://statsapi.web.nhl.com/api/v1/schedule')
         });
       }
 
+      console.dir(playerObjs);
       KafkaService.sendRecord({ players: playerObjs });
       console.log("seeding player data based on schedule ...")
     }
@@ -88,18 +67,19 @@ fetch('https://statsapi.web.nhl.com/api/v1/schedule')
 
 
 let num = 0;
-// setInterval(() => {
+setInterval(() => {
   fetch('https://statsapi.web.nhl.com/api/v1/schedule').then((response) =>
     response.json().then((body) => {
-      console.dir('fetching real time data...');
+
       if (num == 0) {
-        runService('2022021218').catch((error) => {
+        console.dir('fetching real time data...');
+        runService('2022021226').catch((error) => {
           console.error(error);
         });
       }
       num++;
     })
   );
-// },5000);
+},5000);
 
 // getLiveData('2021021204');

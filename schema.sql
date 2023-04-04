@@ -1,4 +1,3 @@
-
 create table if not exists teams (
   id varchar not null primary key,
   name text not null

@@ -31,6 +31,7 @@ import pg from 'pg';
   kafkaConsumer.on('message', async function (message) {
     const jsonString = message.value.toString();
     const jsonObject = JSON.parse(jsonString);
+    console.dir(jsonObject);
     if (jsonObject['teams']) {
       // console.dir(jsonObject['teams'])
       for (const team of jsonObject['teams']) {
