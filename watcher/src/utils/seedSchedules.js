@@ -1,4 +1,5 @@
 import KafkaService from '../producer.js';
+import fetch from 'node-fetch';
 
 async function seedSchedules(refreshTime, todayGameTimes) {
   // seed game basic info for today's schedule

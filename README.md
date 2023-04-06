@@ -31,7 +31,6 @@ $ npm run serve
 ```console
 $ make up
 ```
- The default server will run at: http://localhost:8080 in backend
  
 ## System Architecture
 [![system-design.png](https://i.postimg.cc/d35WgfkV/system-design.png)](https://postimg.cc/0KJdwc0T)

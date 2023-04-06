@@ -3,6 +3,11 @@ services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.2
     container_name: zookeeper
+    healthcheck:
+      test: nc -z localhost 2181 || exit -1
+      interval: 5s
+      timeout: 10s
+      retries: 10
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -20,7 +25,8 @@ services:
     expose:
       - '29092'
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
@@ -32,6 +38,7 @@ services:
 
   init-kafka:
     image: confluentinc/cp-kafka:7.3.2
+    container_name: init-kafka
     depends_on:
       kafka:
         condition: service_healthy
@@ -55,9 +62,9 @@ services:
     restart: always
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 15s
+      timeout: 10s
+      retries: 10
     environment:
       - PGUSER=postgres
       - POSTGRES_USER=postgres
@@ -85,48 +92,59 @@ services:
       DB_NAME: nhl
     command: npm run start
 
-#   volumes:
-#     - ./src:/home/node/app/src
-#     - ./nodemon.json:/home/node/app/nodemon.json
+  watcher:
+    container_name: watcher
+    build:
+      context: .
+      dockerfile: ./watcher/Dockerfile
+    depends_on:
+      init-kafka:
+        condition: service_completed_successfully
+    environment:
+      TOPIC: pipeline
+      ZOOKEEPER: http://localhost:2181
+      SECOND: 5
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 29092
+    command: npm run start
 
-#  reader:
-#    container_name: reader
-#    build:
-#      context: .
-#      dockerfile: ./reader/Dockerfile
-#    depends_on:
-#      - db
-#      - broker
-#      - zookeeper
-#      - seeder
-#    command: npm run start
-#
-#  watcher:
-#    container_name: watcher
-#    build:
-#      context: .
-#      dockerfile: ./watcher/Dockerfile
-#    depends_on:
-#      - db
-#      - broker
-#      - zookeeper
-#      - seeder
-#    volumes:
-#      - ./src:/home/node/app/src
-#      - ./nodemon.json:/home/node/app/nodemon.json
-#    command: npm run start
-#  writer:
-#    container_name: writer
-#    build:
-#      context: .
-#      dockerfile: ./writer/Dockerfile
-#    depends_on:
-#      - db
-#      - broker
-#      - zookeeper
-#      - seeder
-#    volumes:
-#      - ./src:/home/node/app/src
-#      - ./nodemon.json:/home/node/app/nodemon.json
-#    command: npm run start
+  writer:
+    container_name: writer
+    build:
+      context: .
+      dockerfile: ./writer/Dockerfile
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: admin
+      DB_NAME: nhl
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 29092
+      TOPIC: pipeline
+    depends_on:
+      seeder:
+        condition: service_completed_successfully
+      init-kafka:
+        condition: service_completed_successfully
+    command: npm run start
+
+  reader:
+    container_name: reader-api
+    build:
+      context: .
+      dockerfile: ./reader-api/Dockerfile
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: admin
+      DB_NAME: nhl
+      PORT: 3000
+    ports:
+      - 3000:3000
+    depends_on:
+      seeder:
+        condition: service_completed_successfully
+    command: npm run start
 

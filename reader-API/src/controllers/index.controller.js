@@ -1,17 +1,17 @@
-import pg from 'pg';
+import pg from 'pg/lib/index.js';
 import dotenv from 'dotenv';
 import getStatsBasedOnGame from '../utils/getStats.js';
 const { Pool } = pg;
 
-dotenv.config({ override: true });
+dotenv.config({ override: false });
 const pool = new Pool({
-  user: process.env.USER,
-  host: process.env.HOST,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
-  database: process.env.DATABASE,
-  password: process.env.PASSWORD
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD
 });
 
 

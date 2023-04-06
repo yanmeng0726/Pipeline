@@ -1,12 +1,14 @@
 import kafka from 'kafka-node';
+import dotenv from 'dotenv';
 
-const client = new kafka.KafkaClient(process.env.ZOOKEEPER, 'producer-client');
+
+dotenv.config({override: false});
+const client = new kafka.KafkaClient({kafkaHost: process.env.KAFKA_HOST+ ':'+ process.env.KAFKA_PORT});
 
 const producer = new kafka.HighLevelProducer(client);
 producer.on('ready', function () {
   console.log('Kafka Producer is connected and ready.');
 });
-
 
 producer.on('error', function (error) {
   console.error(error);

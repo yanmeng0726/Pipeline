@@ -4,24 +4,28 @@ import dotenv from 'dotenv';
 
 
 (async () => {
-  dotenv.config({ override: true });
+  dotenv.config({ override: false});
   const Client = pg.Client;
   const client = new Client({
-    user: process.env.USER,
-    host: process.env.HOST,
-    database: process.env.DATABASE,
-    password: process.env.PASSWORD,
-    port: process.env.PORT
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT
   });
   client.connect();
-  const kafkaClientOptions = { sessionTimeout: 100, spinDelay: 100, retries: 2 };
+  const kafkaClientOptions = { kafkaHost: process.env.KAFKA_HOST+ ':'+ process.env.KAFKA_PORT,
+    sessionTimeout: 100,
+    spinDelay: 100,
+    retries: 2 };
   const kafkaClient = new kafka.KafkaClient(
-    process.env.ZOOKEEPER,
-    'consumer-client',
+    //process.env.ZOOKEEPER,
+    //'consumer-client',
     kafkaClientOptions
   );
 
   const topics = [{ topic: process.env.TOPIC }];
+
 
   const options = {
     autoCommit: true,

@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 
 
 
-dotenv.config();
+dotenv.config({override: false});
 const n = process.env.SECOND ? process.env.SECOND:5;
 const runService = (id, oldGame) => {
   return new Promise((resolve, reject) => {
