@@ -11,8 +11,6 @@ Pipeline can :
 
   The quickest way to get started to start the server as shown below:
 
-   
-  Install dependencies:
 
 # NHL Data Pipeline
 

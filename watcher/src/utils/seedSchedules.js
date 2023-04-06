@@ -3,11 +3,11 @@ import fetch from 'node-fetch';
 
 async function seedSchedules(refreshTime, todayGameTimes) {
   // seed game basic info for today's schedule
-  let url = 'https://statsapi.web.nhl.com/api/v1/schedule'
-  if(process.env.QUERY){
-    url += '?'+process.env.QUERY
+  let url = 'https://statsapi.web.nhl.com/api/v1/schedule';
+  if (process.env.QUERY) {
+    url += '?' + process.env.QUERY;
   }
-  console.dir(url)
+  console.dir(url);
   return await fetch(url)
     .then((response) => {
       if (response.ok) {

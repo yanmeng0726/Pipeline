@@ -9,6 +9,7 @@ let prevPlayersRealTimeStats = {};
 let diffStats = [];
 
 function getLiveData(gameId, oldGame) {
+  // seed game players data first
   let start = false;
   const playerObjs = [];
   fetch(`https://statsapi.web.nhl.com/api/v1/game/${gameId}/feed/live`)
@@ -35,6 +36,7 @@ function getLiveData(gameId, oldGame) {
     )
     .catch((err) => console.dir(err));
 
+  // check status changes every sec
   let gameStartInterval = setInterval(() => {
     fetch(`https://statsapi.web.nhl.com/api/v1/game/${gameId}/feed/live`).then((response) =>
       response.json().then((body) => {
@@ -42,10 +44,11 @@ function getLiveData(gameId, oldGame) {
         if (oldGame && status != 3 && status != 4) {
           ingest(gameId, gameStartInterval);
         } else {
+          // if game start, pull real time every sec. If data changes, start ingest
           if (status == 3 || status == 4) {
             console.dir(`game ${gameId} starts....`);
             start = true;
-            KafkaService.sendRecord({updateStatus :{  status: true, gameId: gameId }});
+            KafkaService.sendRecord({ updateStatus: { status: true, gameId: gameId } });
             clearInterval(gameStartInterval);
           }
         }
@@ -60,6 +63,7 @@ function getLiveData(gameId, oldGame) {
   }, 1000);
 }
 
+// ingest data and send to writer
 function ingest(gameId, intervalId) {
   fetch(`https://statsapi.web.nhl.com/api/v1/game/${gameId}/feed/live`).then((response) =>
     response
@@ -116,15 +120,13 @@ function ingest(gameId, intervalId) {
         }
         diffStats = [];
         prevPlayersRealTimeStats = playerRealTimeStats;
-  
 
         if (status != 3 && status != 4) {
           console.dir(`game ${gameId} ended....`);
-          KafkaService.sendRecord({ updateStatus:{status:  false, gameId: gameId} });
+          KafkaService.sendRecord({ updateStatus: { status: false, gameId: gameId } });
           clearInterval(intervalId);
         }
       })
       .catch((err) => console.dir(err))
   );
 }
-

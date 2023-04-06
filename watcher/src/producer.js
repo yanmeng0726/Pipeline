@@ -1,9 +1,10 @@
 import kafka from 'kafka-node';
 import dotenv from 'dotenv';
 
-
-dotenv.config({override: false});
-const client = new kafka.KafkaClient({kafkaHost: process.env.KAFKA_HOST+ ':'+ process.env.KAFKA_PORT});
+dotenv.config({ override: false });
+const client = new kafka.KafkaClient({
+  kafkaHost: process.env.KAFKA_HOST + ':' + process.env.KAFKA_PORT
+});
 
 const producer = new kafka.HighLevelProducer(client);
 producer.on('ready', function () {
@@ -22,7 +23,7 @@ const KafkaService = {
       {
         topic: process.env.TOPIC,
         messages: buffer,
-        attributes: 1 
+        attributes: 1
       }
     ];
 

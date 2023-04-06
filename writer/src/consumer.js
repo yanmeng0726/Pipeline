@@ -2,9 +2,8 @@ import kafka from 'kafka-node';
 import pg from 'pg';
 import dotenv from 'dotenv';
 
-
 (async () => {
-  dotenv.config({ override: false});
+  dotenv.config({ override: false });
   const Client = pg.Client;
   const client = new Client({
     user: process.env.DB_USER,
@@ -14,10 +13,12 @@ import dotenv from 'dotenv';
     port: process.env.DB_PORT
   });
   client.connect();
-  const kafkaClientOptions = { kafkaHost: process.env.KAFKA_HOST+ ':'+ process.env.KAFKA_PORT,
+  const kafkaClientOptions = {
+    kafkaHost: process.env.KAFKA_HOST + ':' + process.env.KAFKA_PORT,
     sessionTimeout: 100,
     spinDelay: 100,
-    retries: 2 };
+    retries: 2
+  };
   const kafkaClient = new kafka.KafkaClient(
     //process.env.ZOOKEEPER,
     //'consumer-client',
@@ -25,7 +26,6 @@ import dotenv from 'dotenv';
   );
 
   const topics = [{ topic: process.env.TOPIC }];
-
 
   const options = {
     autoCommit: true,
@@ -40,6 +40,7 @@ import dotenv from 'dotenv';
     const jsonString = message.value.toString();
     const jsonObject = JSON.parse(jsonString);
 
+    // write games data
     if (jsonObject['games']) {
       console.dir('writing games data...');
       for (const game of jsonObject['games']) {
@@ -54,18 +55,20 @@ import dotenv from 'dotenv';
       }
     }
 
+    // update game status
     if (jsonObject['updateStatus']) {
-        const in_process = jsonObject['updateStatus'].status;
-        const gameId = jsonObject['updateStatus'].gameId;
-        console.dir(`updating game ${gameId} status to ${in_process}...`);
+      const in_process = jsonObject['updateStatus'].status;
+      const gameId = jsonObject['updateStatus'].gameId;
+      console.dir(`updating game ${gameId} status to ${in_process}...`);
 
-        const update = 'UPDATE games SET in_process = $1 WHERE id =$2';
-        await client.query({
-          text: update,
-          values: [in_process, gameId]
-        });
+      const update = 'UPDATE games SET in_process = $1 WHERE id =$2';
+      await client.query({
+        text: update,
+        values: [in_process, gameId]
+      });
     }
 
+    // write player data
     if (jsonObject['players']) {
       console.dir('writing players data...');
       for (const player of jsonObject['players']) {
@@ -81,6 +84,7 @@ import dotenv from 'dotenv';
       }
     }
 
+    // write real time stats data
     if (jsonObject['stats']) {
       console.dir('writing stats data...');
       for (const stat of jsonObject['stats']) {

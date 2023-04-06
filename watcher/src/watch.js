@@ -3,10 +3,8 @@ import seedSchedules from './utils/seedSchedules.js';
 import checkEarliesMidnightTime from './utils/checkEarliestMidnightTime.js';
 import dotenv from 'dotenv';
 
-
-
-dotenv.config({override: false});
-const n = process.env.SECOND ? process.env.SECOND:5;
+dotenv.config({ override: false });
+const n = process.env.SECOND ? process.env.SECOND : 5;
 const runService = (id, oldGame) => {
   return new Promise((resolve, reject) => {
     const worker = new Worker('./src/ingest.js', {
@@ -27,17 +25,19 @@ let oldGame;
 setInterval(async () => {
   let currentTime = new Date();
 
-  if (refreshScheduleTime - currentTime <= n * 1000 || checkEarliesMidnightTime(currentTime,n)) {
+  // auto pull schedule
+  if (refreshScheduleTime - currentTime <= n * 1000 || checkEarliesMidnightTime(currentTime, n)) {
     refreshScheduleTime = await seedSchedules(refreshScheduleTime, gameSchedules);
     console.log('game schedule is ');
     console.dir(gameSchedules);
   }
 
-
   if (gameSchedules.length && !nextGame) {
-    nextGame = gameSchedules.shift()
+    nextGame = gameSchedules.shift();
   }
 
+  // if earliest game already started, start process;
+  // if earliest game will start within next 5 mins, open thread
   if (nextGame && new Date(nextGame.time).getTime() - currentTime.getTime() < 0) {
     oldGame = true;
     await runService(nextGame.id, oldGame).catch((error) => {
