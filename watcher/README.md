@@ -13,7 +13,7 @@ kafka
 writer
 ```
 
-## Quick Start 
+## Quick Start Locally
 ### Watch Data for Live Game
 
     

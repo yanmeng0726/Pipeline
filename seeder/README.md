@@ -9,7 +9,7 @@ Seed teams basic info to DB
 databse
 ```
 
-## Quick Start 
+## Quick Start Locally
 
 
   The quickest way to get started to start the server as shown below.
