@@ -7,27 +7,59 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
-  broker:
+  kafka:
     image: confluentinc/cp-kafka:7.3.2
-    container_name: broker
+    container_name: kafka
+    healthcheck:
+      test: nc -z localhost 9092 || exit -1
+      interval: 5s
+      timeout: 10s
+      retries: 10
     ports:
       - "9092:9092"
+    expose:
+      - '29092'
     depends_on:
       - zookeeper
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
 
+  init-kafka:
+    image: confluentinc/cp-kafka:7.3.2
+    depends_on:
+      kafka:
+        condition: service_healthy
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+      kafka-topics --bootstrap-server kafka:29092 --list
+
+      echo -e 'Creating kafka topics'
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic pipeline --replication-factor 1 --partitions 1
+
+      echo -e 'Successfully created the following topics:'
+      kafka-topics --bootstrap-server kafka:29092 --list
+      "
+
   db:
     image: postgres:15.2-alpine
+    hostname: db
     container_name: db
     restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     environment:
+      - PGUSER=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_DB=nhl
       - POSTGRES_PASSWORD=admin
@@ -36,3 +68,65 @@ services:
     volumes: 
       - ./db:/var/lib/postgresql/data
       - ./schema.sql:/docker-entrypoint-initdb.d/create_tables.sql
+
+  seeder:
+    container_name: seeder
+    build:
+      context: .
+      dockerfile: ./seeder/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: admin
+      DB_NAME: nhl
+    command: npm run start
+
+#   volumes:
+#     - ./src:/home/node/app/src
+#     - ./nodemon.json:/home/node/app/nodemon.json
+
+#  reader:
+#    container_name: reader
+#    build:
+#      context: .
+#      dockerfile: ./reader/Dockerfile
+#    depends_on:
+#      - db
+#      - broker
+#      - zookeeper
+#      - seeder
+#    command: npm run start
+#
+#  watcher:
+#    container_name: watcher
+#    build:
+#      context: .
+#      dockerfile: ./watcher/Dockerfile
+#    depends_on:
+#      - db
+#      - broker
+#      - zookeeper
+#      - seeder
+#    volumes:
+#      - ./src:/home/node/app/src
+#      - ./nodemon.json:/home/node/app/nodemon.json
+#    command: npm run start
+#  writer:
+#    container_name: writer
+#    build:
+#      context: .
+#      dockerfile: ./writer/Dockerfile
+#    depends_on:
+#      - db
+#      - broker
+#      - zookeeper
+#      - seeder
+#    volumes:
+#      - ./src:/home/node/app/src
+#      - ./nodemon.json:/home/node/app/nodemon.json
+#    command: npm run start
+

@@ -21,8 +21,7 @@ const getGameById = async (req, res) => {
     const id = req.params.id;
     const response = await pool.query('SELECT * FROM games WHERE id = $1', [id]);
     if(!response.rows.length){
-      res.json([]);
-      return
+      return res.status(204).json();
     }
     const homeTeamId = response.rows[0].home_team;
     const awayTeamId = response.rows[0].away_team;
@@ -115,7 +114,7 @@ const getGameById = async (req, res) => {
     };
     gameObj.home_team['state'] = homeTeamStats;
     gameObj.away_team['state'] = awayTeamStats;
-    res.json(gameObj);
+    res.status(200).json(gameObj);
   } catch (error) {
     console.dir(error);
     switch (Number(error.status)) {
@@ -135,7 +134,10 @@ const getTeamById = async (req, res) => {
     }
     const id = req.params.id;
     const response = await pool.query('SELECT * FROM teams WHERE id = $1', [id]);
-    res.json(response.rows);
+    if(!response.rows.length){
+      return res.status(204).json();
+    }
+    res.status(200).json(response.rows);
   } catch (error) {
     switch (Number(error.status)) {
       case 401:
@@ -154,7 +156,10 @@ const getPlayerById = async (req, res) => {
     }
     const id = req.params.id;
     const response = await pool.query('SELECT * FROM players WHERE id = $1', [id]);
-    res.json(response.rows);
+    if(!response.rows.length){
+      return res.status(204).json();
+    }
+    res.status(200).json(response.rows);
   } catch (error) {
     switch (Number(error.status)) {
       case 401:
@@ -183,7 +188,10 @@ const getPlayerStats = async (req, res) => {
       response = await pool.query('SELECT * FROM stats WHERE player_id = $1', [id]);
     }
 
-    res.json(response.rows);
+    if(!response.rows.length){
+      return res.status(204).json();
+    }
+    res.status(200).json(response.rows);
   } catch (error) {
     switch (Number(error.status)) {
       case 401:

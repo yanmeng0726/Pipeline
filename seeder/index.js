@@ -1,7 +1,10 @@
 import pg from 'pg';
+import fetch from "node-fetch";
+import dotenv from 'dotenv';
 
 
 
+dotenv.config();
 // seed data for teams
 fetch('https://statsapi.web.nhl.com/api/v1/teams')
   .then((response) => {
@@ -20,11 +23,11 @@ fetch('https://statsapi.web.nhl.com/api/v1/teams')
   }).then(async(teams)=>{
     const Client = pg.Client;
     const client = new Client({
-      user: 'postgres',
-      host: 'localhost',
-      database: 'nhl',
-      password: 'admin',
-      port: 5432
+      user: process.env.DB_USER,
+      host: process.env.DB_HOST,
+      database: process.env.DB_NAME,
+      password: process.env.DB_PASSWORD,
+      port: process.env.DB_PORT
     });
     client.connect();
     for (const team of teams) {
@@ -36,7 +39,8 @@ fetch('https://statsapi.web.nhl.com/api/v1/teams')
           values: [team.id, team.name]
         });
       }
-  })
+
+  }).then(()=> process.exit(0))
   .catch((response) => {
     console.error(response);
   });

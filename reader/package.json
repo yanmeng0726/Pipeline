@@ -17,7 +17,7 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "prettier": "prettier --config .prettierrc 'src/**/*' --write",
-    "test": "jest --testTimeout=5000"
+    "test": "jest --testTimeout=5000 --runInBand --force-exit"
   },
   "keywords": [],
   "author": "",

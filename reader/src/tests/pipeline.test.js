@@ -1,8 +1,23 @@
-// import app from '../index.js'
 import request from 'supertest';
-describe('Sample Test', () => {
-    it('should test that true === true', async() => {
-      // let res = await request(app).get('/players/8482130');
-      // console.dir(res.body)
-    })
-  })
+
+
+describe('test', () => {
+  let server;
+  beforeAll(async () => {
+    const mod = await import('../index.js');
+    server = mod .default;
+  });
+
+  afterAll((done) => {
+    if (server) {
+      server.close();
+      done();
+    }
+  });
+
+  it('should return no context if player does not exist', async () => {
+    const res = await request(server)
+      .get('/players/1')
+      expect(res.statusCode).toBe(204);
+  });
+});
