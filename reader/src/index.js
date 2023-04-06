@@ -1,5 +1,6 @@
 import express from 'express';
 import router from './routes/index.js';
+
 const app = express();
 
 //middlewares
@@ -12,3 +13,4 @@ app.use(router);
 app.listen(process.env.PORT || 3000);
 
 console.log('Server on port 3000');
+export default app

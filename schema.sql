@@ -12,10 +12,10 @@ create table if not exists games (
 create table if not exists players (
   id varchar not null primary key,
   name varchar not null,
-  team varchar not null references teams(id),
-  age integer not null,
-  number integer not null,
-  position text not null
+  team varchar references teams(id),
+  age integer,
+  number integer,
+  position text 
 );
 
 
