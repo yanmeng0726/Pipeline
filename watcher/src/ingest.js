@@ -45,6 +45,7 @@ function getLiveData(gameId, oldGame) {
           if (status == 3 || status == 4) {
             console.dir(`game ${gameId} starts....`);
             start = true;
+            KafkaService.sendRecord({updateStatus :{  status: true, gameId: gameId }});
             clearInterval(gameStartInterval);
           }
         }
@@ -119,6 +120,7 @@ function ingest(gameId, intervalId) {
 
         if (status != 3 && status != 4) {
           console.dir(`game ${gameId} ended....`);
+          KafkaService.sendRecord({ updateStatus:{status:  false, gameId: gameId} });
           clearInterval(intervalId);
         }
       })
@@ -126,4 +128,3 @@ function ingest(gameId, intervalId) {
   );
 }
 
-// export default getLiveData

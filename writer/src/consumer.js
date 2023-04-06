@@ -36,7 +36,6 @@ import dotenv from 'dotenv';
     const jsonString = message.value.toString();
     const jsonObject = JSON.parse(jsonString);
 
-
     if (jsonObject['games']) {
       console.dir('writing games data...');
       for (const game of jsonObject['games']) {
@@ -49,6 +48,18 @@ import dotenv from 'dotenv';
           values: [game.id, game.awayTeam, game.homeTeam]
         });
       }
+    }
+
+    if (jsonObject['updateStatus']) {
+        const in_process = jsonObject['updateStatus'].status;
+        const gameId = jsonObject['updateStatus'].gameId;
+        console.dir(`updating game ${gameId} status to ${in_process}...`);
+
+        const update = 'UPDATE games SET in_process = $1 WHERE id =$2';
+        await client.query({
+          text: update,
+          values: [in_process, gameId]
+        });
     }
 
     if (jsonObject['players']) {

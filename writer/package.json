@@ -1,7 +1,7 @@
 {
   "name": "watcher",
   "version": "1.0.0",
-  "description": "watch game is live or not",
+  "description": "kafka consumer which writes data to db",
   "main": "index.js",
   "scripts": {
     "test": "npm run test",

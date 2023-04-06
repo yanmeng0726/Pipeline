@@ -6,16 +6,17 @@ create table if not exists teams (
 create table if not exists games (
   id varchar not null primary key,
   home_team varchar not null references teams(id),
-  away_team varchar not null references teams(id)
+  away_team varchar not null references teams(id),
+  in_process BOOLEAN DEFAULT FALSE
 );
 
 create table if not exists players (
   id varchar not null primary key,
-  name varchar not null,
+  name varchar,
   team varchar references teams(id),
   age integer,
   number integer,
-  position text 
+  position varchar
 );
 
 

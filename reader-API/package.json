@@ -1,7 +1,7 @@
 {
-  "name": "REST_API_NODE_POSTGRES",
+  "name": "reader-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "restful api for reading data from db",
   "main": "index.js",
   "type": "module",
   "jest": {
