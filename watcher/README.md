@@ -8,6 +8,7 @@ when one game are live, open a new thread and publish real time data to kafka. w
  Please make sure start dependencies first:
 ```console
 databse
+seeder
 kafka
 writer
 ```
@@ -15,11 +16,11 @@ writer
 ## Quick Start 
 ### Watch Data for Live Game
 
-
+    
   The quickest way to get started to start the server as shown below.
+  
+  Access to Watcher folder:
 
-
-```
    
   Install dependencies:
 
@@ -33,12 +34,12 @@ $ npm install
 ```console
 $ npm run start
 ```
-Please note : You can only see data when there is a live game
+**Please Note : You can see data comes only when there is a live game.**
 
 
 
-### Load Data for Pevious Game
-If you want to load previous games data, please change QUERY which is located in  .env file based on [NHL API Rules](https://github.com/sportradarus/sportradar-advanced-challenge/blob/main/documentation.md#schedule). For example : 
+### Load Data for Pevious Games Locally
+If you want to load previous games data to DB, please change QUERY which is located in  .env file based on [NHL API Rules](https://github.com/sportradarus/sportradar-advanced-challenge/blob/main/documentation.md#schedule). For example : 
 ```console
 QUERY='season=20202021'
 ```
@@ -46,10 +47,15 @@ QUERY='season=20202021'
 QUERY='date=2018-01-09'
 ```
 
-## Docker Start
 
+
+
+## Docker Start
+**Please Note : You can see data only when there is a live game.**
+
+In Pipeline folder, please run :
 ```console
-$ make up
+$ docker-compose up watcher
 ```
 
  

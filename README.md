@@ -14,26 +14,38 @@ Pipeline can :
    
   Install dependencies:
 
-```console
-$ npm install
-```
+# NHL Data Pipeline
 
-  Start the server:
+A data pipeline to ingest National Hockey League  real-time data.
 
-```console
-$ npm run serve
-```
+Pipeline can : 
+1. continually watch for game status changes and toggle the next process on game status changes.
+2. when games are live, ingest game data from the NHL. when games ends, stop
+3. query database to get data
 
- The default server will run at: http://localhost:8080
 
-## Docker Start
+## Docker Quick Start
 
 ```console
-$ make up
+$ docker-compose up
 ```
- 
+After run above command, below things happened:
+1. DB (postgres) and Kafka are up. The default Topic in Kafka is called 'pipeline'
+2. Seeder seeds teams basic info to database
+3. Writer, Watcher Reader-api up
+4. Watcher pull today's schedule and send baisc game info to Writer; Writer writes to DB
+5. Next time for automation pulling scheudle is set to midnight (Eastern Time)
+6. If there is a live game, watcher and writer will start process
+7. If there is not a live game, watcher wait until five minutes before earliest game to ingest data
+
+
+## Local Quick Start
+If you want to run watcher/reader/writer locally, please make sure DB, Seeder and Kafka are up first. please run:
+```console
+$ docker-compose up init-kafka seeder
+```
 ## System Architecture
-[![system-design.png](https://i.postimg.cc/d35WgfkV/system-design.png)](https://postimg.cc/0KJdwc0T)
+[![system-architecture.png](https://i.postimg.cc/66hVz6Qh/system-architecture.png)](https://postimg.cc/F17JH43f)
 
 
 ## Contributing

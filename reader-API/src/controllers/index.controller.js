@@ -161,7 +161,7 @@ const getPlayerById = async (req, res) => {
 
 const getPlayerStats = async (req, res) => {
   try {
-    if (!req.params.playerId) {
+    if (!req.params.playegarId) {
       return res.status(400).json({ error: 'player Id is required' });
     }
     const id = req.params.playerId;
