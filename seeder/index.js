@@ -1,8 +1,6 @@
 import pg from 'pg';
-import fetch from "node-fetch";
+import fetch from 'node-fetch';
 import dotenv from 'dotenv';
-
-
 
 dotenv.config();
 // seed data for teams
@@ -19,8 +17,9 @@ fetch('https://statsapi.web.nhl.com/api/v1/teams')
       const teamObj = { id: team.id, name: team.name };
       teams.push(teamObj);
     }
-    return teams
-  }).then(async(teams)=>{
+    return teams;
+  })
+  .then(async (teams) => {
     const Client = pg.Client;
     const client = new Client({
       user: process.env.DB_USER,
@@ -31,16 +30,16 @@ fetch('https://statsapi.web.nhl.com/api/v1/teams')
     });
     client.connect();
     for (const team of teams) {
-        console.dir(team)
-        const insert = 'INSERT INTO teams(id, name) VALUES($1, $2)';
-        const update = 'ON CONFLICT (id) DO UPDATE SET name = excluded.name;';
-         await client.query({
-          text: insert + update,
-          values: [team.id, team.name]
-        });
-      }
-
-  }).then(()=> process.exit(0))
+      console.dir(team);
+      const insert = 'INSERT INTO teams(id, name) VALUES($1, $2)';
+      const update = 'ON CONFLICT (id) DO UPDATE SET name = excluded.name;';
+      await client.query({
+        text: insert + update,
+        values: [team.id, team.name]
+      });
+    }
+  })
+  .then(() => process.exit(0))
   .catch((response) => {
     console.error(response);
   });
