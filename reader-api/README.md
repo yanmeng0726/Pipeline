@@ -34,7 +34,7 @@ $ npm install
 ```console
 $ npm run start
 ```
-
+The default server will run at: http://localhost:3000
 ## Open Endpoints
 
 
